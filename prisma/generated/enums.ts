@@ -9,7 +9,41 @@
 * 🟢 You can import this file directly.
 */
 
+export const Role = {
+  OWNER: 'OWNER',
+  MANAGER: 'MANAGER',
+  CASHIER: 'CASHIER',
+  KITCHEN: 'KITCHEN',
+  CUSTOMER: 'CUSTOMER'
+} as const
+
+export type Role = (typeof Role)[keyof typeof Role]
 
 
-// This file is empty because there are no enums in the schema.
-export {}
+export const OrderStatus = {
+  PENDING: 'PENDING',
+  COOKING: 'COOKING',
+  READY: 'READY',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
+
+
+export const PaymentMethod = {
+  CASH: 'CASH',
+  QRIS: 'QRIS',
+  DEBIT: 'DEBIT'
+} as const
+
+export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod]
+
+
+export const StockType = {
+  IN: 'IN',
+  OUT: 'OUT',
+  WASTE: 'WASTE'
+} as const
+
+export type StockType = (typeof StockType)[keyof typeof StockType]

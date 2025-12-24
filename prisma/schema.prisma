@@ -14,22 +14,28 @@ generator client {
 }
 
 model User {
-  id            String    @id
+  id            String    @id @default(cuid())
   name          String
   email         String
   emailVerified Boolean   @default(false)
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+
+  role          Role      @default(CUSTOMER)
+
   sessions      Session[]
   accounts      Account[]
+
+  shift       Shift[]
+  transactions Order[] @relation("CashierOrders")
 
   @@unique([email])
   @@map("user")
 }
 
 model Session {
-  id        String   @id
+  id        String   @id @default(cuid())
   expiresAt DateTime
   token     String
   createdAt DateTime @default(now())
@@ -45,7 +51,7 @@ model Session {
 }
 
 model Account {
-  id                    String    @id
+  id                    String    @id @default(cuid())
   accountId             String
   providerId            String
   userId                String
@@ -65,7 +71,7 @@ model Account {
 }
 
 model Verification {
-  id         String   @id
+  id         String   @id @default(cuid())
   identifier String
   value      String
   expiresAt  DateTime
@@ -74,4 +80,124 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+enum Role {
+  OWNER
+  MANAGER
+  CASHIER
+  KITCHEN
+  CUSTOMER
+}
+
+enum OrderStatus {
+  PENDING
+  COOKING
+  READY
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  QRIS
+  DEBIT
+}
+
+enum StockType {
+  IN
+  OUT
+  WASTE
+}
+
+// Business models go below
+model Category {
+  id        String   @id @default(cuid())
+  name      String
+  products  Product[]
+}
+
+model Product {
+  id String @id @default(cuid())
+  name String
+  description String?
+  price Decimal @db.Decimal(10,2)
+  image String?
+  isAvailable Boolean @default(true)
+  
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  orderItems OrderItem[]
+  inventories Inventory[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Inventory {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int     
+   unit String //contoh: "gram", "pcs"
+   logs InventoryLog[]
+}
+
+model InventoryLog {
+  id          String    @id @default(cuid())
+  inventoryId String
+  inventory   Inventory @relation(fields: [inventoryId], references: [id])
+  type        StockType
+  quantity    Int
+  note        String?
+  createdAt   DateTime  @default(now())
+}
+
+model Table {
+  id        String   @id @default(cuid())
+  number    String   @unique
+  qrCode    String?  // String unik untuk QR Code
+  isOccupied Boolean @default(false)
+  orders    Order[]
+}
+
+model Order {
+  id        String      @id @default(cuid())
+  tableId   String?     // jika take-away, tableId bisa null
+  table     Table?      @relation(fields: [tableId], references: [id])
+
+  cashierId String?   // User yang memproses pembayaran
+cashier       User?         @relation("CashierOrders", fields: [cashierId], references: [id])
+
+  totalAmount Decimal   @db.Decimal(10,2)
+  status      OrderStatus @default(PENDING)
+  paymentMethod PaymentMethod?
+  isPaid Boolean @default(false)
+
+  items    OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrderItem {
+  id       String   @id @default(cuid())
+  orderId  String
+  order    Order    @relation(fields: [orderId], references: [id])
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity Int
+  price    Decimal  @db.Decimal(10,2) // harga pada saat pemesanan
+  note     String? // jangan pedas
+}
+
+model Shift {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  startTime DateTime
+  endTime   DateTime?
+  startCash Decimal @db.Decimal(10,2) // uang kas pada saat shift dimulai
+  endCash   Decimal? @db.Decimal(10,2) // uang kas pada saat shift berakhir
 }
