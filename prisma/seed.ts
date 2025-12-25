@@ -1,13 +1,15 @@
 // prisma/seed.ts
 
-import { prisma } from "@/db/client";
-import { auth } from "../src/utils/auth"; // Pastikan path import benar (mungkin perlu penyesuaian karena file ini dijalankan ts-node)
-// Note: Karena better-auth hashing passwordnya internal, untuk seed manual seringkali kita butuh bypass atau menggunakan api create user dari better-auth jika memungkinkan.
-// TAPI, cara paling mudah untuk seed manual adalah membuat user lewat prisma biasa lalu kita set password manual (jika better-auth support) atau membiarkan owner register pertama kali.
-// ALTERNATIF AMAN:
-// Kita buat user di DB, tapi passwordnya nanti di-set lewat fitur "Forgot Password" atau kita gunakan method helper jika ada.
+import { PrismaNeon } from "@prisma/adapter-neon";
+import { PrismaClient } from "./generated/client";
+import "dotenv/config";
+
+const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL });
+export const prisma = new PrismaClient({ adapter });
 
 async function main() {
+  console.log("Seeding database...");
+
   // Cek apakah sudah ada user
   const existingUser = await prisma.user.findFirst({
     where: { email: "owner@kopijenaka.com" },
@@ -21,7 +23,7 @@ async function main() {
     console.log(
       "Silakan register manual user pertama via UI, lalu jalankan update query di database untuk mengubah role menjadi OWNER."
     );
-
+  } else {
     // Atau jika ingin membuat data master Menu (Kategori)
     await prisma.category.createMany({
       data: [

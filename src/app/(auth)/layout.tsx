@@ -1,9 +1,7 @@
-const AuthLayout = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <div className="flex h-screen items-center justify-center bg-gray-100">
-      {children}
-    </div>
-  );
+import { AuthLayout } from "@/features/auth/layout/auth-layout";
+
+const Layout = ({ children }: { children: React.ReactNode }) => {
+  return <AuthLayout>{children}</AuthLayout>;
 };
 
-export default AuthLayout;
+export default Layout;
