@@ -121,7 +121,7 @@ model Product {
   id String @id @default(cuid())
   name String
   description String?
-  price Decimal @db.Decimal(10,2)
+  price Int
   image String?
   isAvailable Boolean @default(true)
   
@@ -170,7 +170,7 @@ model Order {
   cashierId String?   // User yang memproses pembayaran
 cashier       User?         @relation("CashierOrders", fields: [cashierId], references: [id])
 
-  totalAmount Decimal   @db.Decimal(10,2)
+  totalAmount Int
   status      OrderStatus @default(PENDING)
   paymentMethod PaymentMethod?
   isPaid Boolean @default(false)
@@ -188,7 +188,7 @@ model OrderItem {
   productId String
   product   Product  @relation(fields: [productId], references: [id])
   quantity Int
-  price    Decimal  @db.Decimal(10,2) // harga pada saat pemesanan
+  price    Int
   note     String? // jangan pedas
 }
 
@@ -198,6 +198,6 @@ model Shift {
   user      User     @relation(fields: [userId], references: [id])
   startTime DateTime
   endTime   DateTime?
-  startCash Decimal @db.Decimal(10,2) // uang kas pada saat shift dimulai
-  endCash   Decimal? @db.Decimal(10,2) // uang kas pada saat shift berakhir
+  startCash Int // uang kas pada saat shift dimulai
+  endCash   Int? // uang kas pada saat shift berakhir
 }
