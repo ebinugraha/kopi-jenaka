@@ -27,13 +27,13 @@ export type AggregateShift = {
 }
 
 export type ShiftAvgAggregateOutputType = {
-  startCash: runtime.Decimal | null
-  endCash: runtime.Decimal | null
+  startCash: number | null
+  endCash: number | null
 }
 
 export type ShiftSumAggregateOutputType = {
-  startCash: runtime.Decimal | null
-  endCash: runtime.Decimal | null
+  startCash: number | null
+  endCash: number | null
 }
 
 export type ShiftMinAggregateOutputType = {
@@ -41,8 +41,8 @@ export type ShiftMinAggregateOutputType = {
   userId: string | null
   startTime: Date | null
   endTime: Date | null
-  startCash: runtime.Decimal | null
-  endCash: runtime.Decimal | null
+  startCash: number | null
+  endCash: number | null
 }
 
 export type ShiftMaxAggregateOutputType = {
@@ -50,8 +50,8 @@ export type ShiftMaxAggregateOutputType = {
   userId: string | null
   startTime: Date | null
   endTime: Date | null
-  startCash: runtime.Decimal | null
-  endCash: runtime.Decimal | null
+  startCash: number | null
+  endCash: number | null
 }
 
 export type ShiftCountAggregateOutputType = {
@@ -194,8 +194,8 @@ export type ShiftGroupByOutputType = {
   userId: string
   startTime: Date
   endTime: Date | null
-  startCash: runtime.Decimal
-  endCash: runtime.Decimal | null
+  startCash: number
+  endCash: number | null
   _count: ShiftCountAggregateOutputType | null
   _avg: ShiftAvgAggregateOutputType | null
   _sum: ShiftSumAggregateOutputType | null
@@ -226,8 +226,8 @@ export type ShiftWhereInput = {
   userId?: Prisma.StringFilter<"Shift"> | string
   startTime?: Prisma.DateTimeFilter<"Shift"> | Date | string
   endTime?: Prisma.DateTimeNullableFilter<"Shift"> | Date | string | null
-  startCash?: Prisma.DecimalFilter<"Shift"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  endCash?: Prisma.DecimalNullableFilter<"Shift"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startCash?: Prisma.IntFilter<"Shift"> | number
+  endCash?: Prisma.IntNullableFilter<"Shift"> | number | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
@@ -249,8 +249,8 @@ export type ShiftWhereUniqueInput = Prisma.AtLeast<{
   userId?: Prisma.StringFilter<"Shift"> | string
   startTime?: Prisma.DateTimeFilter<"Shift"> | Date | string
   endTime?: Prisma.DateTimeNullableFilter<"Shift"> | Date | string | null
-  startCash?: Prisma.DecimalFilter<"Shift"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  endCash?: Prisma.DecimalNullableFilter<"Shift"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startCash?: Prisma.IntFilter<"Shift"> | number
+  endCash?: Prisma.IntNullableFilter<"Shift"> | number | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id">
 
@@ -276,16 +276,16 @@ export type ShiftScalarWhereWithAggregatesInput = {
   userId?: Prisma.StringWithAggregatesFilter<"Shift"> | string
   startTime?: Prisma.DateTimeWithAggregatesFilter<"Shift"> | Date | string
   endTime?: Prisma.DateTimeNullableWithAggregatesFilter<"Shift"> | Date | string | null
-  startCash?: Prisma.DecimalWithAggregatesFilter<"Shift"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  endCash?: Prisma.DecimalNullableWithAggregatesFilter<"Shift"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startCash?: Prisma.IntWithAggregatesFilter<"Shift"> | number
+  endCash?: Prisma.IntNullableWithAggregatesFilter<"Shift"> | number | null
 }
 
 export type ShiftCreateInput = {
   id?: string
   startTime: Date | string
   endTime?: Date | string | null
-  startCash: runtime.Decimal | runtime.DecimalJsLike | number | string
-  endCash?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startCash: number
+  endCash?: number | null
   user: Prisma.UserCreateNestedOneWithoutShiftInput
 }
 
@@ -294,16 +294,16 @@ export type ShiftUncheckedCreateInput = {
   userId: string
   startTime: Date | string
   endTime?: Date | string | null
-  startCash: runtime.Decimal | runtime.DecimalJsLike | number | string
-  endCash?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startCash: number
+  endCash?: number | null
 }
 
 export type ShiftUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  startCash?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  endCash?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startCash?: Prisma.IntFieldUpdateOperationsInput | number
+  endCash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   user?: Prisma.UserUpdateOneRequiredWithoutShiftNestedInput
 }
 
@@ -312,8 +312,8 @@ export type ShiftUncheckedUpdateInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  startCash?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  endCash?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startCash?: Prisma.IntFieldUpdateOperationsInput | number
+  endCash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ShiftCreateManyInput = {
@@ -321,16 +321,16 @@ export type ShiftCreateManyInput = {
   userId: string
   startTime: Date | string
   endTime?: Date | string | null
-  startCash: runtime.Decimal | runtime.DecimalJsLike | number | string
-  endCash?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startCash: number
+  endCash?: number | null
 }
 
 export type ShiftUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  startCash?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  endCash?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startCash?: Prisma.IntFieldUpdateOperationsInput | number
+  endCash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ShiftUncheckedUpdateManyInput = {
@@ -338,8 +338,8 @@ export type ShiftUncheckedUpdateManyInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  startCash?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  endCash?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startCash?: Prisma.IntFieldUpdateOperationsInput | number
+  endCash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ShiftListRelationFilter = {
@@ -431,28 +431,28 @@ export type ShiftUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.ShiftScalarWhereInput | Prisma.ShiftScalarWhereInput[]
 }
 
-export type NullableDecimalFieldUpdateOperationsInput = {
-  set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type ShiftCreateWithoutUserInput = {
   id?: string
   startTime: Date | string
   endTime?: Date | string | null
-  startCash: runtime.Decimal | runtime.DecimalJsLike | number | string
-  endCash?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startCash: number
+  endCash?: number | null
 }
 
 export type ShiftUncheckedCreateWithoutUserInput = {
   id?: string
   startTime: Date | string
   endTime?: Date | string | null
-  startCash: runtime.Decimal | runtime.DecimalJsLike | number | string
-  endCash?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startCash: number
+  endCash?: number | null
 }
 
 export type ShiftCreateOrConnectWithoutUserInput = {
@@ -489,40 +489,40 @@ export type ShiftScalarWhereInput = {
   userId?: Prisma.StringFilter<"Shift"> | string
   startTime?: Prisma.DateTimeFilter<"Shift"> | Date | string
   endTime?: Prisma.DateTimeNullableFilter<"Shift"> | Date | string | null
-  startCash?: Prisma.DecimalFilter<"Shift"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  endCash?: Prisma.DecimalNullableFilter<"Shift"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startCash?: Prisma.IntFilter<"Shift"> | number
+  endCash?: Prisma.IntNullableFilter<"Shift"> | number | null
 }
 
 export type ShiftCreateManyUserInput = {
   id?: string
   startTime: Date | string
   endTime?: Date | string | null
-  startCash: runtime.Decimal | runtime.DecimalJsLike | number | string
-  endCash?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startCash: number
+  endCash?: number | null
 }
 
 export type ShiftUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  startCash?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  endCash?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startCash?: Prisma.IntFieldUpdateOperationsInput | number
+  endCash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ShiftUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  startCash?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  endCash?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startCash?: Prisma.IntFieldUpdateOperationsInput | number
+  endCash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ShiftUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  startCash?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  endCash?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startCash?: Prisma.IntFieldUpdateOperationsInput | number
+  endCash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 
@@ -587,8 +587,8 @@ export type $ShiftPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     userId: string
     startTime: Date
     endTime: Date | null
-    startCash: runtime.Decimal
-    endCash: runtime.Decimal | null
+    startCash: number
+    endCash: number | null
   }, ExtArgs["result"]["shift"]>
   composites: {}
 }
@@ -1017,8 +1017,8 @@ export interface ShiftFieldRefs {
   readonly userId: Prisma.FieldRef<"Shift", 'String'>
   readonly startTime: Prisma.FieldRef<"Shift", 'DateTime'>
   readonly endTime: Prisma.FieldRef<"Shift", 'DateTime'>
-  readonly startCash: Prisma.FieldRef<"Shift", 'Decimal'>
-  readonly endCash: Prisma.FieldRef<"Shift", 'Decimal'>
+  readonly startCash: Prisma.FieldRef<"Shift", 'Int'>
+  readonly endCash: Prisma.FieldRef<"Shift", 'Int'>
 }
     
 

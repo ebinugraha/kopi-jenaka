@@ -22,14 +22,20 @@ import { toast } from "sonner";
 import { useSuspenseProducts } from "../hooks/use-products";
 import { ProductDialog } from "../components/product-dialog";
 import { ProductTable } from "../components/product-table";
+import { Product } from "../types";
 
 export default function ProductsView() {
   const [isOpen, setIsOpen] = useState(false);
   const product = useSuspenseProducts();
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   return (
     <>
-      <ProductDialog isOpen={isOpen} onOpenChange={setIsOpen} />
+      <ProductDialog
+        isOpen={isOpen}
+        onOpenChange={setIsOpen}
+        productToEdit={selectedProduct}
+      />
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Daftar Menu</h1>
@@ -38,7 +44,13 @@ export default function ProductsView() {
             Tambah Produk
           </Button>
         </div>
-        <ProductTable data={product.data} />
+        <ProductTable
+          data={product.data}
+          onEdit={(product) => {
+            setSelectedProduct(product);
+            setIsOpen(true);
+          }}
+        />
       </div>
     </>
   );

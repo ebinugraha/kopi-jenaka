@@ -5,6 +5,7 @@ import {
   createTRPCRouter,
   protectedProcedure,
 } from "../../../trpc/init";
+import { productSchema } from "../schemas";
 
 export const productRouter = createTRPCRouter({
   /**
@@ -15,14 +16,7 @@ export const productRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const { search } = input;
 
-      return ctx.prisma.product.findMany({
-        where: {
-          isAvailable: true,
-          name: {
-            contains: search,
-            mode: "insensitive",
-          },
-        },
+      return await ctx.prisma.product.findMany({
         include: {
           category: true,
         },
@@ -35,15 +29,7 @@ export const productRouter = createTRPCRouter({
    * Hanya admin saja
    */
   create: adminProcedure
-    .input(
-      z.object({
-        name: z.string().min(1),
-        price: z.number().min(0),
-        categoryId: z.string(),
-        description: z.string().optional(),
-        isAvailable: z.boolean().default(true),
-      })
-    )
+    .input(productSchema)
     .mutation(async ({ ctx, input }) => {
       const { name, price, categoryId, description, isAvailable } = input;
 
@@ -63,17 +49,12 @@ export const productRouter = createTRPCRouter({
 
   update: adminProcedure
     .input(
-      z.object({
+      productSchema.extend({
         id: z.string(),
-        name: z.string().min(1),
-        price: z.number().min(0),
-        description: z.string().optional(),
-        categoryId: z.string(),
-        isAvaible: z.boolean(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { id, name, price, description, categoryId, isAvaible } = input;
+      const { id, name, price, description, categoryId, isAvailable } = input;
 
       return ctx.prisma.product.update({
         where: { id },
@@ -82,7 +63,7 @@ export const productRouter = createTRPCRouter({
           price,
           description,
           categoryId,
-          isAvailable: isAvaible,
+          isAvailable: isAvailable,
         },
       });
     }),

@@ -1,136 +1,90 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useCreateProduct } from "../hooks/use-products";
-import z from "zod";
-import { useGetCategory } from "@/features/categories/hooks/use-category";
-import { useForm } from "react-hook-form";
-import { Form, FormControl, FormField } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Product } from "../types";
+import { useCreateProduct, useUpdateProduct } from "../hooks/use-products";
+import { ProductFormValues } from "../schemas";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-
-const productSchema = z.object({
-  name: z.string().min(1, "Nama produk wajib diisi"),
-  price: z.number().min(0, "Harga produk wajib diisi"),
-  categoryId: z.string().min(1, "Kategori produk wajib diisi"),
-  description: z.string().optional(),
-  isAvailable: z.boolean().default(true),
-});
-
-export type ProductFormValues = z.infer<typeof productSchema>;
+import { ProductForm } from "./product-form";
 
 interface ProductDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  productToEdit?: Product | null;
 }
 
-export const ProductDialog = ({ isOpen, onOpenChange }: ProductDialogProps) => {
-  const form = useForm<ProductFormValues>({
-    defaultValues: {
-      name: "",
-      price: 0,
-      categoryId: "",
-      description: "",
-      isAvailable: true,
-    },
-  });
+export const ProductDialog = ({
+  isOpen,
+  onOpenChange,
+  productToEdit,
+}: ProductDialogProps) => {
+  const create = useCreateProduct();
+  const update = useUpdateProduct();
 
-  const createProduct = useCreateProduct();
-  const category = useGetCategory();
-
-  const onSubmit = (data: ProductFormValues) => {
-    console.log(data);
-    createProduct.mutate(data, {
-      onSuccess: () => {
-        form.reset();
-        onOpenChange(false);
-        toast.success("Produk berhasil ditambahkan");
-      },
-    });
+  const handleSubmit = (values: ProductFormValues) => {
+    {
+      if (productToEdit) {
+        update.mutate(
+          {
+            id: productToEdit.id,
+            ...values,
+          },
+          {
+            onSuccess: () => {
+              toast.success("Produk berhasil diperbarui");
+            },
+          }
+        );
+      } else {
+        create.mutate(values, {
+          onSuccess: () => {
+            toast.success("Produk berhasil ditambahkan");
+          },
+        });
+      }
+    }
+    onOpenChange(false);
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-106.25">
         <DialogHeader>
-          {/* TODO add update product */}
-          <DialogTitle>Tambah Produk</DialogTitle>
+          <DialogTitle>
+            {productToEdit ? "Edit Produk" : "Tambah Produk Baru"}
+          </DialogTitle>
+          <DialogDescription>
+            {productToEdit
+              ? "Perbarui detail produk di bawah ini."
+              : "Isi form untuk menambahkan menu baru."}
+          </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form
-            className="flex flex-col gap-y-2"
-            onSubmit={form.handleSubmit(onSubmit)}
-          >
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormControl>
-                  <Input placeholder="Nama" {...field} />
-                </FormControl>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="price"
-              render={({ field }) => (
-                <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="Harga"
-                    {...field}
-                    value={field.value || ""}
-                    onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                  />
-                </FormControl>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="categoryId"
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Pilih Kategori" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {category.data?.map((cat) => {
-                      return (
-                        <SelectItem key={cat.id} value={cat.id}>
-                          {cat.name}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormControl>
-                  <Input placeholder="Deskripsi" {...field} />
-                </FormControl>
-              )}
-            />
-            {/* Add submit button and handlers as needed */}
-            <Button type="submit">Submit</Button>
-          </form>
-        </Form>
+
+        {/* Kunci reusability ada di sini:
+            Kita reset form state dengan `key`. 
+            Jika productToEdit berubah ID-nya (atau jadi null), 
+            React akan menghancurkan form lama dan buat baru (fresh state).
+        */}
+        <ProductForm
+          key={productToEdit?.id || "create"}
+          onSubmit={handleSubmit}
+          submitLabel={productToEdit ? "Simpan Perubahan" : "Buat Produk"}
+          defaultValues={
+            productToEdit
+              ? {
+                  name: productToEdit.name,
+                  price: productToEdit.price, // Sudah number (aman)
+                  categoryId: productToEdit.categoryId,
+                  description: productToEdit.description || "",
+                  isAvailable: productToEdit.isAvailable,
+                }
+              : undefined
+          }
+        />
       </DialogContent>
     </Dialog>
   );
