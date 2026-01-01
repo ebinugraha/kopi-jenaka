@@ -1,100 +1,92 @@
-import z from "zod";
-import {
-  adminProcedure,
-  baseProcedure,
-  createTRPCRouter,
-  protectedProcedure,
-} from "../../../trpc/init";
+import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
+import { endOfDay, startOfDay, subDays, format } from "date-fns";
+import { id } from "date-fns/locale";
 
-export const productRouter = createTRPCRouter({
-  /**
-   * Dapatkan keseluruhan produk untuk user
-   */
-  getAll: protectedProcedure.query(async ({ ctx }) => {
-    return ctx.prisma.product.findMany({
+export const dashboardRouter = createTRPCRouter({
+  getStats: protectedProcedure.query(async ({ ctx }) => {
+    const today = new Date();
+    const start = startOfDay(today);
+    const end = endOfDay(today);
+
+    const todayOrders = await ctx.prisma.order.aggregate({
       where: {
-        isAvailable: true,
+        createdAt: {
+          gte: start,
+          lte: end,
+        },
+        status: { not: "CANCELLED" },
       },
-      include: {
-        category: true,
+      _sum: { totalAmount: true },
+      _count: { id: true },
+    });
+
+    const totalRevenue = Number(todayOrders._sum.totalAmount || 0);
+    const totalOrders = todayOrders._count.id;
+
+    const sevenDaysAgo = subDays(today, 6);
+
+    const last7DaysOrders = await ctx.prisma.order.findMany({
+      where: {
+        createdAt: { gte: startOfDay(sevenDaysAgo) },
+        status: { not: "CANCELLED" },
       },
-      orderBy: {
-        createdAt: "desc",
+      select: {
+        createdAt: true,
+        totalAmount: true,
       },
     });
-  }),
-  /**
-   * Hanya admin saja
-   */
-  create: adminProcedure
-    .input(
-      z.object({
-        name: z.string().min(1),
-        price: z.number().min(0),
-        categoryId: z.string(),
-        description: z.string().optional(),
-        isAvailable: z.boolean().default(true),
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      const { name, price, categoryId, description, isAvailable } = input;
 
-      return ctx.prisma.product.create({
-        data: {
-          name,
-          price,
-          categoryId,
-          description,
-          isAvailable,
-        },
-      });
-    }),
-  /**
-   * Hanya admin saja
-   */
+    const chartDataMap = new Map<string, number>();
 
-  update: adminProcedure
-    .input(
-      z.object({
-        id: z.string(),
-        name: z.string().min(1),
-        price: z.number().min(0),
-        description: z.string().optional(),
-        categoryId: z.string(),
-        isAvaible: z.boolean(),
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      const { id, name, price, description, categoryId, isAvaible } = input;
+    for (let i = 0; i < 7; i++) {
+      const date = subDays(today, i);
+      const key = format(date, "dd MMM", { locale: id });
+      chartDataMap.set(key, 0);
+    }
 
-      return ctx.prisma.product.update({
-        where: { id },
-        data: {
-          name,
-          price,
-          description,
-          categoryId,
-          isAvailable: isAvaible,
-        },
-      });
-    }),
+    last7DaysOrders.forEach((order) => {
+      const key = format(order.createdAt, "dd MMM", { locale: id });
+      const current = chartDataMap.get(key) || 0;
+      chartDataMap.set(key, current + Number(order.totalAmount));
+    });
 
-  /**
-   * Hanya admin saja
-   */
-  delete: adminProcedure
-    .input(z.object({ id: z.string() }))
-    .mutation(async ({ ctx, input }) => {
-      const { id } = input;
-      return ctx.prisma.product.delete({
-        where: { id },
-      });
-    }),
+    // Convert ke array dan balik urutannya (dari lama ke baru)
+    const chartData = Array.from(chartDataMap)
+      .map(([name, total]) => ({ name, total }))
+      .reverse();
 
-  /**
-   * Hanya admin saja
-   */
-  getByCategory: protectedProcedure.query(async ({ ctx }) => {
-    return ctx.prisma.category.findMany();
+    // 3. Top 5 Produk Terlaris
+    const topProductsRaw = await ctx.prisma.orderItem.groupBy({
+      by: ["productId"],
+      _sum: { quantity: true },
+      orderBy: {
+        _sum: { quantity: "desc" },
+      },
+      take: 5,
+    });
+
+    // Ambil detail nama produk
+    const productIds = topProductsRaw.map((p) => p.productId);
+    const productsInfo = await ctx.prisma.product.findMany({
+      where: { id: { in: productIds } },
+    });
+
+    const topProducts = topProductsRaw.map((item) => {
+      const product = productsInfo.find((p) => p.id === item.productId);
+      return {
+        name: product?.name || "Unknown",
+        count: item._sum.quantity || 0,
+        revenue: Number(product?.price || 0) * (item._sum.quantity || 0),
+      };
+    });
+
+    return {
+      today: {
+        revenue: totalRevenue,
+        count: totalOrders,
+      },
+      chartData,
+      topProducts,
+    };
   }),
 });
