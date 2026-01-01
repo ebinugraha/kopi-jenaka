@@ -1,4 +1,3 @@
-// src/features/pos/components/cart-sidebar.tsx
 "use client";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -15,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useOrder } from "../hooks/use-order";
+import { useOrder } from "@/features/orders/hooks/use-order";
 
 export function CartSidebar() {
   const { items, removeFromCart, updateQuantity, getTotalPrice, clearCart } =
@@ -27,6 +26,13 @@ export function CartSidebar() {
   const order = useOrder();
 
   const handleCheckout = () => {
+    console.log(
+      "Checkout with items:",
+      items,
+      "and payment method:",
+      paymentMethod
+    );
+
     order.mutate(
       {
         items: items.map((item) => ({
@@ -34,6 +40,7 @@ export function CartSidebar() {
           quantity: item.quantity,
         })),
         paymentMethod: paymentMethod,
+        customerName: "Pelanggan",
       },
       {
         onSuccess: () => {
@@ -128,10 +135,10 @@ export function CartSidebar() {
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Subtotal</span>
             <span>
-              {/* {new Intl.NumberFormat("id-ID", {
+              {new Intl.NumberFormat("id-ID", {
                 style: "currency",
                 currency: "IDR",
-              }).format(total)} */}
+              }).format(total)}
             </span>
           </div>
           <div className="flex justify-between text-sm">
@@ -142,10 +149,10 @@ export function CartSidebar() {
           <div className="flex justify-between font-bold text-lg">
             <span>Total</span>
             <span className="text-primary">
-              {/* {new Intl.NumberFormat("id-ID", {
+              {new Intl.NumberFormat("id-ID", {
                 style: "currency",
                 currency: "IDR",
-              }).format(total)} */}
+              }).format(total)}
             </span>
           </div>
         </div>
